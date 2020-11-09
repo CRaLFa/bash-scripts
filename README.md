@@ -1,3 +1,3 @@
-# shell
+# bash
 
 Shell scripts for Bash

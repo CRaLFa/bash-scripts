@@ -5,6 +5,11 @@ if (( $# < 1 )); then
     exit 1
 fi
 
+if (( $1 < 2 )); then
+    echo 'INTEGER must be greater than 1.' >&2
+    exit 1
+fi
+
 declare -i n=$1 i=2 c
 max=$(awk -v num=$n 'BEGIN { printf "%d", sqrt(num) }')
 printf '%d = ' $n
