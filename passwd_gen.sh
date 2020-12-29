@@ -1,20 +1,20 @@
 #!/bin/bash
 
-which node > /dev/null 2>&1 || exit $?
+which node &>/dev/null || exit $?
 
 length=20
-upper=0
+upper=false
 
 while getopts 'hl:u' OPT
 do
     case $OPT in
         h) echo 'Usage: pwgen [-l LENGTH] [-u]' && exit 0 ;;
         l) length=$OPTARG ;;
-        u) upper=1 ;;
+        u) upper=true ;;
         *) exit 1 ;;
     esac
 done
 
 passwd=$(node -e "console.log(Math.random().toString(36).substr(2, $length));")
 
-(( upper == 1 )) && echo ${passwd^^} || echo $passwd
+$upper && echo ${passwd^^} || echo $passwd
