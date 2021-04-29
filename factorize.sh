@@ -10,9 +10,10 @@ if (( $1 < 2 )); then
     exit 1
 fi
 
-declare -i n=$1 i=2 c
-max=$(awk -v num=$n 'BEGIN { printf "%d", sqrt(num) }')
+declare -i n="$1" i=2 c
 printf '%d = ' $n
+
+max=$(echo "sqrt($n)" | bc)
 
 while (( i <= max ))
 do

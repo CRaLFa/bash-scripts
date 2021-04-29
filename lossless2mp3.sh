@@ -5,8 +5,8 @@ if (( $# < 1 )); then
     exit 1
 fi
 
-which rename &>/dev/null || exit $?
-which ffmpeg &>/dev/null || exit $?
+which rename &> /dev/null || exit $?
+which ffmpeg &> /dev/null || exit $?
 
 ext=$1
 rename 's/ /€/g' *."$ext"

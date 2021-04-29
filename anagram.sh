@@ -5,13 +5,11 @@ if (( $# < 1 )); then
     exit 1
 fi
 
-declare -i arg2=$2
-count=$(( $# == 1 ? 1 : arg2 ))
-
-chars=( $(echo $1 | grep -o . | tr '\n' ' ') )
+count=$(( $# == 1 ? 1 : "$2" ))
+chars=( $(echo -n "$1" | grep -o . | tr '\n' ' ') )
 
 for (( i = 0; i < count; i++ ))
 do
-    shuf -e ${chars[@]} | tr -d '\n'
+    shuf -e "${chars[@]}" | tr -d '\n'
     echo ''
 done

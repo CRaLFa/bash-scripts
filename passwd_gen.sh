@@ -1,6 +1,6 @@
 #!/bin/bash
 
-which node &>/dev/null || exit $?
+which node &> /dev/null || exit $?
 
 length=20
 upper=false

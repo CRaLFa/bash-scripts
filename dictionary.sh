@@ -1,14 +1,22 @@
 #!/bin/bash
 
-[ -f /opt/gene95/gene.txt ] || exit $?
+DICT_DIR="$HOME/.dict"
 
-reverse=false
+if [ ! -d $DICT_DIR ]; then
+    mkdir -p $DICT_DIR || exit $?
+    echo -e 'Downloading dictionary...\n'
+    curl -sS http://www.namazu.org/~tsuchiya/sdic/data/gene95.tar.gz \
+        | tar xzOf - gene.txt \
+        | nkf -Sw > $DICT_DIR/gene.txt || exit $?
+fi
+
+japanese=false
 whole=false
 
-while getopts 'rw' OPT
+while getopts 'jw' OPT
 do
     case $OPT in
-        r ) reverse=true ;;
+        j ) japanese=true ;;
         w ) whole=true ;;
         * ) exit 1 ;;
     esac
@@ -17,15 +25,15 @@ done
 shift $(( OPTIND - 1 ))
 
 if (( $# < 1 )); then
-    echo 'Usage: dict [-rw] WORD' >&2
+    echo 'Usage: dict [-jw] WORD' >&2
     exit 1
 fi
 
-commands=('grep -i')
+cmdline=('grep -i --color=auto')
 
-$reverse && commands+=('-B 1') || commands+=('-A 1')
-$whole && commands+=('-w')
+$japanese && cmdline+=('-B 1') || cmdline+=('-A 1')
+$whole && cmdline+=('-w')
 
-commands+=("$1 /opt/gene95/gene.txt")
+cmdline+=("'$1' $DICT_DIR/gene.txt")
 
-eval "${commands[@]}"
+eval "${cmdline[@]}"
