@@ -1,17 +1,25 @@
 #!/bin/bash
 
+set -e
+
 main () {
-    (( $# < 1 )) && {
-        echo "Usage: $(basename $0) state_json" >&2
-        exit 1
-    }
+    local json
+    if (( $# < 1 )); then
+        json=$(cat)
+    else
+        json="$1"
+    fi
 
-    local results=$(echo "$1" | jq '.evaluations as $evals | [.boardState[range(.rowIndex)]] | to_entries | map(.key as $row | .value | split("") | to_entries | map({ key: ((.key | tonumber) + 1), value } + { result: $evals[$row][.key] }))')
+    local results=$(echo "$json" | jq '.evaluations as $evals | [.boardState[range(.rowIndex)]] | to_entries | map(.key as $row | .value | split("") | to_entries | map({ key: ((.key | tonumber) + 1), value } + { result: $evals[$row][.key] }))')
 
-    local absent_chars=$(echo "$results" | jq -r '[.[][] | select(.result == "absent").value] | join("")')
+    local absents=$(echo "$results" | jq -r '.[][] | select(.result == "absent").value')
     local presents=$(echo "$results" | jq -r '[.[][] | select(.result == "present")] | map([.value, .key] | join(" "))[]')
     local corrects=$(echo "$results" | jq -r '[.[][] | select(.result == "correct")] | map([.value, .key] | join(" "))[]')
 
+    [[ -z "$absents" && -z "$presents" && -z "$corrects" ]] && exit 1
+
+    local exist_chars=$(echo -e "${presents}\n${corrects}" | cut -d ' ' -f 1 | paste -sd '')
+    local absent_chars=$(echo "$absents" | grep -o "[^${exist_chars}]" | paste -sd '')
     local cmdline="list_words | grep -v '[${absent_chars}]'"
 
     [ -n "$presents" ] && while read -r char pos
