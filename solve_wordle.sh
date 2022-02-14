@@ -19,6 +19,8 @@ main () {
     [[ -z "$absents" && -z "$presents" && -z "$corrects" ]] && exit 1
 
     local exist_chars=$(echo -e "${presents}\n${corrects}" | cut -d ' ' -f 1 | paste -sd '')
+    [ -z "$exist_chars" ] && exist_chars='0'
+
     local absent_chars=$(echo "$absents" | grep -o "[^${exist_chars}]" | paste -sd '')
     local cmdline="list_words | grep -v '[${absent_chars}]'"
 
