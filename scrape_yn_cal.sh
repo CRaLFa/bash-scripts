@@ -14,10 +14,11 @@ list_comics () {
     do
         curl -s "$url" \
             | pup 'article thead + tbody td.column-3:parent-of(br) text{}' \
-            | grep -Pv '^(　|$)' \
             | nkf -Z \
+            | grep -Pv '^([ 　]|$| *※|【.+版】|ガレット|パルフェ |サクラクエスト外伝|Lガールズ\(5\))' \
+            | grep -Pv '(月号|雑誌|特集)' \
             | perl -pe 's/&amp;/&/g; s/&lt;/</g; s/&gt;/>/g; s/&quot;/"/g;' \
-            | perl -pe 's/ +$//g; s/\[[^]]+\]//g; s/ *([Vv]ol|\()?[\d.]+(\))?$//g'
+            | perl -pe 's/ +$//g; s/ *\[[^]]+\]//g; s/【.+版】//g; s/ *[Vv]ol.+$//g; s/ *\(([\d.上中下]+|.*著|.+版)\).*$//g; s/ *[\d.]+( *.+版)?$//g; s/((原)*作(者)*|漫画)://g'
     done < <(list_cal_urls)
 }
 
@@ -39,7 +40,7 @@ output () {
 
     _IFS="$IFS"
     IFS=','
-    local names=( $(sed 's| / |,|g' <<< "$author") ) kanas=()
+    local names=( $(perl -pe 's/ *\/ */,/g' <<< "$author") ) kanas=()
 
     for name in ${names[@]}
     do
@@ -55,7 +56,7 @@ main () {
 
     export MANGAPEDIA_URL
     export -f search_kana output
-    list_comics | parallel -L 2 -u 'output {1} {2}' 2> /dev/null
+    list_comics | parallel -L 2 -k 'output {1} {2}' 2> /dev/null
 }
 
 main
