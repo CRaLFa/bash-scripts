@@ -1,15 +1,11 @@
 #!/bin/bash
 
 if (( $# < 1 )); then
-    echo 'Usage: anagram WORD [count]' >&2
+    echo "Usage: $(basename $0) WORD [count]" >&2
     exit 1
 fi
 
-count=$(( $# == 1 ? 1 : "$2" ))
-chars=( $(echo -n "$1" | grep -o . | tr '\n' ' ') )
+declare -i count=$2
+(( count == 0 && (count = 1) ))
 
-for (( i = 0; i < count; i++ ))
-do
-    shuf -e "${chars[@]}" | tr -d '\n'
-    echo ''
-done
+yes "$1" | head -n $count | xargs -I @ bash -c 'echo "@" | grep -o . | shuf | paste -sd ""'
