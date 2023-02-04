@@ -10,7 +10,7 @@ img_html=$(curl -sS "$product_url" | grep '"mdCMN09Image"') || {
     echo 'Not found' >&2
     exit 1
 }
-os=$(echo "$img_html" | head -n 1 | grep -Po '(?<=\d{5}\/)\w+')
+os=$(echo "$img_html" | head -n 1 | grep -Po '\d{5}/\K\w+')
 
 case "$os" in
     'android')
