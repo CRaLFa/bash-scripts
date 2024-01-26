@@ -1,11 +1,19 @@
 #!/bin/bash
 
-if (( $# < 1 )); then
-    echo "Usage: $(basename $0) WORD [count]" >&2
-    exit 1
-fi
+shuf_str () {
+    echo "$1" | grep -o . | shuf | paste -sd ''
+}
 
-declare -i count=$2
-(( count == 0 && (count = 1) ))
+main () {
+    (( $# < 1 )) && {
+        echo "Usage: $(basename $0) WORD [COUNT]" >&2
+        return 1
+    }
 
-yes "$1" | head -n $count | xargs -I @ bash -c 'echo "@" | grep -o . | shuf | paste -sd ""'
+    local -i cnt=${2:-1}
+    export -f shuf_str
+
+    yes "$1" | head -n $cnt | xargs -P 0 -I @ bash -c 'shuf_str "@"'
+}
+
+main "$@"
