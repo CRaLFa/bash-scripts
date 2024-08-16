@@ -13,11 +13,11 @@ check_dependency () {
 }
 
 stock_price () {
-    local code="$1" html price
-    html=$(curl -s "https://finance.yahoo.co.jp/quote/${code}.T")
+    local code="$1"
+    local html=$(curl -s "https://finance.yahoo.co.jp/quote/${code}.T")
     [ -z "$html" ] && return
     pup 'h2._6uDhA-ZV text{}' <<< "$html"
-    price=()
+    local price=()
     price+=($(pup 'span._1mwPgJ2S span._3rXWJKZF text{}' <<< "$html"))
     price+=($(pup 'span._30Ey7Bcp > span.Y_utZE_b > span._3rXWJKZF text{}' <<< "$html"))
     price+=("($(pup 'span._30Ey7Bcp > span._3BXIqAcg > span._3rXWJKZF text{}' <<< "$html") %)")
@@ -32,8 +32,7 @@ main () {
     check_dependency || return
     local cmdline=()
     [[ "$1" = '-w' && "$2" =~ ^[0-9.]+$ ]] && {
-        local -i interval=$2
-        cmdline+=("watch -n $interval")
+        cmdline+=("watch -n $2")
         shift 2
     }
     cmdline+=("parallel -j 0 -k stock_price ::: $@")
