@@ -1,19 +1,20 @@
 #!/bin/bash
 
-if (( $# < 1 )); then
-    echo "Usage: tomp3 EXTENSION (e.g. 'wav', 'flac')" >&2
-    exit 1
-fi
+main () {
+	(( $# < 1 )) && {
+		echo "Usage: $(basename "$0") EXTENSION (e.g. 'wav', 'flac')" >&2
+		return 1
+	}
 
-which rename &> /dev/null || exit $?
-which ffmpeg &> /dev/null || exit $?
+	which ffmpeg &> /dev/null || {
+		echo 'ffmpeg is required' >&2
+		return
+	}
 
-ext=$1
-rename 's/ /€/g' *."$ext"
+	for file in ./*."$1"
+	do
+		ffmpeg -vn -i "$file" -ac 2 -ar 44100 -b:a 320k -acodec libmp3lame -f mp3 "${file%.*}.mp3"
+	done
+}
 
-for file in $(ls *."$ext")
-do
-    ffmpeg -vn -i $file -ac 2 -ar 44100 -b:a 320k -acodec libmp3lame -f mp3 "${file%.*}.mp3"
-done
-
-rename 's/€/ /g' *
+main "$@"

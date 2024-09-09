@@ -1,45 +1,53 @@
 #!/bin/bash
 
-if (( $# < 1 )); then
-    echo 'Usage: bfactor INTEGER' >&2
-    exit 1
-fi
+factorize () {
+	local -i n="$1" i=2 c
+	printf '%d = ' $n
 
-if (( $1 < 2 )); then
-    echo 'INTEGER must be greater than 1.' >&2
-    exit 1
-fi
+	max=$(bc <<< "sqrt($n)")
 
-declare -i n="$1" i=2 c
-printf '%d = ' $n
+	while (( i <= max ))
+	do
+		c=0
 
-max=$(echo "sqrt($n)" | bc)
+		while (( n % i == 0 ))
+		do
+			(( n /= i, c++ ))
+		done
 
-while (( i <= max ))
-do
-    c=0
+		if (( c < 1 )); then
+			(( i++ ))
+			continue
+		elif (( c == 1 )); then
+			printf '%d' $i
+		else
+			printf '%d^%d' $i $c
+		fi
 
-    while (( n % i == 0 ))
-    do
-        (( n /= i, c++ ))
-    done
+		(( n == 1 )) && {
+			echo
+			break
+		}
 
-    if (( c < 1 )); then
-        (( i++ ))
-        continue
-    elif (( c == 1 )); then
-        printf '%d' $i
-    else
-        printf '%d^%d' $i $c
-    fi
+		printf ' * '
+		(( i++ ))
+	done
 
-    if (( n == 1 )); then
-        echo ''
-        break
-    fi
+	(( n > 1 )) && echo $n
+}
 
-    printf ' * '
-    (( i++ ))
-done
+main () {
+	(( $# < 1 )) && {
+		echo "Usage: $(basename "$0") INTEGER" >&2
+		return 1
+	}
 
-(( n > 1 )) && echo $n
+	(( $1 < 2 )) && {
+		echo 'INTEGER must be greater than 1.' >&2
+		return 1
+	}
+
+	factorize $1
+}
+
+main "$@"

@@ -2,7 +2,7 @@
 
 main () {
     (( $# < 1 )) && {
-        echo "Usage: $(basename $0) PRODUCT_ID" >&2
+        echo "Usage: $(basename "$0") PRODUCT_ID" >&2
         return 1
     }
 

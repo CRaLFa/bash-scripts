@@ -7,7 +7,7 @@ main () {
     do
         case $OPT in
             'h')
-                echo "Usage: $(basename $0) [-hlu] [LENGTH]"
+                echo "Usage: $(basename "$0") [-hlu] [LENGTH]"
                 return 0
             ;;
             'l')

@@ -6,7 +6,7 @@ shuf_str () {
 
 main () {
     (( $# < 1 )) && {
-        echo "Usage: $(basename $0) WORD [COUNT]" >&2
+        echo "Usage: $(basename "$0") WORD [COUNT]" >&2
         return 1
     }
 

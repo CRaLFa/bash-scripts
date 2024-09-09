@@ -28,7 +28,7 @@ search_kana () {
 
     local page_url=$(curl -sGL --data-urlencode "search_term_string=${name}" "${MANGAPEDIA_URL}/search" \
         | pup '#SCT2 div.box a attr{href}')
-    [ -z "page_url" ] && return 0
+    [ -z "$page_url" ] && return 0
 
     echo -n $(curl -s "${MANGAPEDIA_URL}${page_url}" | pup 'dd[itemprop="ruby"] text{}')
 }
@@ -42,7 +42,7 @@ output () {
     IFS=','
     local names=( $(perl -pe 's/ *\/ */,/g' <<< "$author") ) kanas=()
 
-    for name in ${names[@]}
+    for name in "${names[@]}"
     do
         kanas+=( $(search_kana "$name") )
     done
