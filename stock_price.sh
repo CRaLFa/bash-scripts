@@ -47,7 +47,7 @@ main () {
 	}
 	cmdline+=('nikkei_average')
 	(( $# > 0 )) && {
-		cmdline+=("; parallel -j 0 -k stock_price ::: $@")
+		cmdline+=("& parallel -j 0 -k stock_price ::: $@")
 		export -f stock_price
 	}
 	eval $watch && {
