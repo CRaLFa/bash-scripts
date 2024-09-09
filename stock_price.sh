@@ -1,43 +1,60 @@
 #!/bin/bash
 
+set -uo pipefail
+
 check_dependency () {
-    which pup &> /dev/null || {
-        echo 'pup is required' >&2
-        return 1
-    }
-    which parallel &> /dev/null || {
-        echo 'parallel is required' >&2
-        return 1
-    }
-    return 0
+	which pup &> /dev/null || {
+		echo 'pup is required' >&2
+		return 1
+	}
+	which parallel &> /dev/null || {
+		echo 'parallel is required' >&2
+		return 1
+	}
+	return 0
+}
+
+nikkei_average () {
+	local html
+	html=$(curl -s 'https://www.nikkei.com/markets/worldidx/chart/nk225/' | pup '#MAIN_CONTENTS .economic') || return
+	[ -z "$html" ] && return
+	local price=()
+	price+=("$(echo "$html" | pup '.economic_value_now text{}' | tr -d '\n ')")
+	price+=("$(echo "$html" | pup '.economic_balance_value text{}' | tr -d '\n ')")
+	price+=("$(echo "$html" | pup '.economic_balance_percent text{}' | tr -d '\n ')")
+	echo -e "日経平均株価\n${price[*]}\n"
 }
 
 stock_price () {
-    local code="$1"
-    local html=$(curl -s "https://finance.yahoo.co.jp/quote/${code}.T")
-    [ -z "$html" ] && return
-    pup 'h2.PriceBoardMain__name__6uDh text{}' <<< "$html"
-    local price=()
-    price+=($(pup 'span.PriceBoardMain__price__1mwP span.StyledNumber__value__3rXW text{}' <<< "$html"))
-    price+=($(pup 'span.PriceChangeLabel__prices__30Ey > span.PriceChangeLabel__primary__Y_ut > span.StyledNumber__value__3rXW text{}' <<< "$html"))
-    price+=("($(pup 'span.PriceChangeLabel__prices__30Ey > span.PriceChangeLabel__secondary__3BXI > span.StyledNumber__value__3rXW text{}' <<< "$html") %)")
-    echo -e "${price[@]}\n"
+	local code="$1" html
+	html=$(curl -s "https://finance.yahoo.co.jp/quote/${code}.T") || return
+	[ -z "$html" ] && return
+	pup 'h2.PriceBoardMain__name__6uDh text{}' <<< "$html"
+	local price=()
+	price+=("$(pup 'span.PriceBoardMain__price__1mwP span.StyledNumber__value__3rXW text{}' <<< "$html")")
+	price+=("$(pup 'span.PriceChangeLabel__prices__30Ey > span.PriceChangeLabel__primary__Y_ut > span.StyledNumber__value__3rXW text{}' <<< "$html")")
+	price+=("($(pup 'span.PriceChangeLabel__prices__30Ey > span.PriceChangeLabel__secondary__3BXI > span.StyledNumber__value__3rXW text{}' <<< "$html") %)")
+	echo -e "${price[*]}\n"
 }
 
 main () {
-    (( $# < 1 )) && {
-        echo "Usage: $(basename $0) [-w INTERVAL] STOCK_CODE..." >&2
-        return
-    }
-    check_dependency || return
-    local cmdline=()
-    [[ "$1" = '-w' && "$2" =~ ^[0-9.]+$ ]] && {
-        cmdline+=("watch -n $2")
-        shift 2
-    }
-    cmdline+=("parallel -j 0 -k stock_price ::: $@")
-    export -f stock_price
-    eval ${cmdline[@]}
+	check_dependency || return
+	local watch='false' cmdline=()
+	[[ $# -gt 0 && "$1" = '-w' && "$2" =~ ^[0-9.]+$ ]] && {
+		watch='true'
+		cmdline+=("watch -n $2 -x bash -c '")
+		shift 2
+	}
+	cmdline+=('nikkei_average')
+	(( $# > 0 )) && {
+		cmdline+=("; parallel -j 0 -k stock_price ::: $@")
+		export -f stock_price
+	}
+	eval $watch && {
+		cmdline+=("'")
+		export -f nikkei_average
+	}
+	eval "${cmdline[*]}"
 }
 
 main "$@"
