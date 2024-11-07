@@ -1,37 +1,47 @@
 #!/bin/bash
 
+usage () {
+	echo "Usage: $(basename "$0") [-h|--help] [-l|--lower] [-u|--upper] [length]" >&2
+}
+
 main () {
-    local lower='false' upper='false'
+	local args lower='false' upper='false'
 
-    while getopts 'hlu' OPT
-    do
-        case $OPT in
-            'h')
-                echo "Usage: $(basename "$0") [-hlu] [LENGTH]"
-                return 0
-            ;;
-            'l')
-                lower='true'
-            ;;
-            'u')
-                upper='true'
-            ;;
-            *)
-                return 1
-            ;;
-        esac
-    done
+	args=$(getopt -o 'hlu' -l 'help,lower,upper' -- "$@") || {
+		usage
+		return 1
+	}
+	eval "set -- $args"
 
-    shift $(( OPTIND - 1 ))
+	while (( $# > 0 ))
+	do
+		case "$1" in
+			-h|--help)
+				usage
+				return 0
+			;;
+			-l|--lower)
+				lower='true'
+			;;
+			-u|--upper)
+				upper='true'
+			;;
+			--)
+				shift
+				break
+			;;
+		esac
+		shift
+	done
 
-    local rand_str=$(base64 /dev/random | head | paste -sd '')
-    local -i len=${1:-10}
-    local pw=${rand_str:0:$len}
+	local rand_str=$(base64 /dev/random | head | paste -sd '')
+	local -i len=${1:-10}
+	local pw=${rand_str:0:$len}
 
-    eval $lower && pw=${pw,,}
-    eval $upper && pw=${pw^^}
+	eval $lower && pw=${pw,,}
+	eval $upper && pw=${pw^^}
 
-    echo $pw
+	echo "$pw"
 }
 
 main "$@"
