@@ -18,8 +18,8 @@ main () {
 	do
 		(( (c <= 16 && c % 8 == 0) || (c > 16 && c % 6 == 4) )) && new_line
 		(( c == 16 )) && new_line
-		fg_color "$c"
-		bg_color "$c"
+		fg_color $c
+		bg_color $c
 	done
 	new_line
 }
