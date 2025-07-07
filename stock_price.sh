@@ -3,11 +3,11 @@
 set -uo pipefail
 
 check_dependency () {
-	which pup &> /dev/null || {
+	command -v pup &> /dev/null || {
 		echo 'pup is required' >&2
 		return 1
 	}
-	which parallel &> /dev/null || {
+	command -v parallel &> /dev/null || {
 		echo 'parallel is required' >&2
 		return 1
 	}

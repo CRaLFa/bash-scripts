@@ -2,7 +2,7 @@
 
 factorize () {
 	local -i n="$1" i=2 c
-	printf '%d = ' $n
+	printf '%d = ' "$n"
 
 	max=$(bc <<< "sqrt($n)")
 
@@ -47,7 +47,7 @@ main () {
 		return 1
 	}
 
-	factorize $1
+	factorize "$1"
 }
 
 main "$@"

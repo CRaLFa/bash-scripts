@@ -1,20 +1,15 @@
 #!/bin/bash
 
 main () {
-	(( $# < 1 )) && {
-		echo "Usage: $(basename "$0") EXTENSION (e.g. 'wav', 'flac')" >&2
-		return 1
-	}
-
-	which ffmpeg &> /dev/null || {
+	command -v ffmpeg &> /dev/null || {
 		echo 'ffmpeg is required' >&2
 		return
 	}
 
-	for file in ./*."$1"
+	while read -r f
 	do
-		ffmpeg -vn -i "$file" -ac 2 -ar 44100 -b:a 320k -acodec libmp3lame -f mp3 "${file%.*}.mp3"
-	done
+		ffmpeg -vn -i "$f" -ac 2 -ar 44100 -b:a 320k -acodec libmp3lame -f mp3 "${f%.*}.mp3"
+	done < <(find . -type f -regextype posix-extended -regex '.+\.(wav|flac)')
 }
 
 main "$@"

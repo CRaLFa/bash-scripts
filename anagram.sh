@@ -13,7 +13,7 @@ main () {
 	local -i cnt=${2:-1}
 	export -f shuf_str
 
-	yes "$1" | head -n $cnt | xargs -P 0 -I @ bash -c 'shuf_str "@"'
+	yes "$1" | head -n "$cnt" | xargs -P 0 -I @ bash -c 'shuf_str "@"'
 }
 
 main "$@"
