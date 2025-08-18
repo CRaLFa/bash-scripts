@@ -8,7 +8,7 @@ main () {
 
 	while read -r f
 	do
-		ffmpeg -vn -nostdin -i "$f" -ac 2 -ar 44100 -b:a 320k -acodec libmp3lame -f mp3 "${f%.*}.mp3"
+		ffmpeg -nostdin -i "$f" -ac 2 -ar 44100 -b:a 320k -acodec libmp3lame -c:v copy -f mp3 "${f%.*}.mp3"
 	done < <(find . -maxdepth 1 -type f -regextype posix-extended -regex '.+\.(wav|flac)')
 }
 
