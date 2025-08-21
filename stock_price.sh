@@ -29,9 +29,9 @@ stock_price () {
 	local code="$1" html
 	html=$(curl -s "https://finance.yahoo.co.jp/quote/${code}.T") || return
 	[ -z "$html" ] && return
-	pup 'h2.PriceBoardMain__name__6uDh text{}' <<< "$html"
+	pup 'h2.PriceBoard__name__166W text{}' <<< "$html"
 	local price=()
-	price+=("$(pup 'span.PriceBoardMain__price__1mwP span.StyledNumber__value__3rXW text{}' <<< "$html")")
+	price+=("$(pup 'span.PriceBoard__price__1V0k span.StyledNumber__value__3rXW text{}' <<< "$html")")
 	price+=("$(pup 'span.PriceChangeLabel__prices__30Ey > span.PriceChangeLabel__primary__Y_ut > span.StyledNumber__value__3rXW text{}' <<< "$html")")
 	price+=("($(pup 'span.PriceChangeLabel__prices__30Ey > span.PriceChangeLabel__secondary__3BXI > span.StyledNumber__value__3rXW text{}' <<< "$html") %)")
 	echo -e "${price[*]}\n"
