@@ -3,7 +3,7 @@
 set -euo pipefail
 
 main () {
-	local y ym_from ym_to holidays
+	local y ym_from ym_to holidays ym
 
 	y=$(date '+%Y')
 	ym_from=$(( y * 100 + $(date '+%m') ))
