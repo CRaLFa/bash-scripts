@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 main () {
 	local y ym_from ym_to holidays
 
