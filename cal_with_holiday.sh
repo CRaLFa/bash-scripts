@@ -23,7 +23,7 @@ main () {
 
 	for (( ym = ym_from; ym <= ym_to; ym++ ))
 	do
-		grep "$(( ym / 100 ))/$(( ym % 100 ))" <<< "$holidays"
+		grep "$(( ym / 100 ))/$(( ym % 100 ))/" <<< "$holidays" || true
 	done
 }
 
